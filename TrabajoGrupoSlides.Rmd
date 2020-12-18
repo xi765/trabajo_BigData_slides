@@ -1,0 +1,618 @@
+---
+title: "Turismo en España"
+subtitle: "Origen, Motivos, Gasto"
+author: "Hugo Martin Chisvert,Pavlina Dinkova Grozeva ,Ana María Borras Cebolla"
+date: "2020"
+output: ioslides_presentation
+
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r packages-setup, include = FALSE}
+library(tidyverse)
+library(klippy)  #- remotes::install_github("rlesur/klippy")
+library(knitr)
+library(cowplot)
+library(xml2)
+library(magick)
+library(maps)
+library(gganimate)
+```
+
+## Índice
+
+1. Introducción
+
+2. Búsqueda y obtención de datos
+
+3. El turismo mundial
+
+4. Turismo nacional
+
+5. Los efectos del CoVid en el sector turístico español
+
+# Presentación del tema
+
+## Introduccion
+<div class="blue">
+
+El trabajo tiene por finalidad...... 
+
+```{r fig.align='center' , out.width=650 , out.height=425}
+knitr::include_graphics("https://raw.githubusercontent.com/Pavlinadinkova/iosslides/main/spain_turismo.jpg"  )
+```
+
+
+
+## ¿De dónde hemos obtenido los datos?
+Los datos los hemos obtenido de fuentes diferentes.<div class="red2">
+
+<font size="4">
+
+> - **INE.es**
+<https://www.ine.es/dyngs/INEbase/listaoperaciones.htm>
+
+```{r eval = TRUE, echo = FALSE,out.width =" 30% "}
+knitr::include_graphics("https://ifuturo.org/wp-content/uploads/2019/08/logoinecaja.jpg" )
+```
+
+>- Secretaria de Estado de Turismo <http://estadisticas.tourspain.es/es-es/estadisticas/frontur/paginas/default.aspx>
+
+```{r eval = TRUE, echo = FALSE,out.width =" 30% "}
+knitr::include_graphics("https://upload.wikimedia.org/wikipedia/commons/8/8e/Logotipo_de_la_Secretar%C3%ADa_de_Estado_de_Comercio.png")
+```
+
+>- Eurostat <https://ec.europa.eu/eurostat/home>
+
+```{r eval = TRUE, echo = FALSE,out.width =" 30% "}
+knitr::include_graphics("https://ec.europa.eu/eurostat/cache/infographs/pricelevels/pricelevels_2019/img/logoEstat.png")
+```
+
+</font>
+
+## Metodos utilizados para obtener los datos
+
+<font size="10">
+
+>- Descarga directa
+
+>- WebScraping
+
+>- APIS
+
+</font>
+
+# El turismo mundial {data-background="https://s03.s3c.es/imag/_v0/770x420/2/7/4/turismo-mundial-fitur-dreamstime.jpg"}
+
+## Continentes más visitados
+
+```{r eval = TRUE, message=FALSE,echo = FALSE,out.width =" 90% "}
+
+#Importamos datos TURISMO MUNDIAL
+url6 <- "https://raw.githubusercontent.com/Pavlinadinkova/10/main/turismo_mundial.csv"
+tt<- rio::import(url6, setclass="tibble")
+names(tt)=c("Continente","Fecha","Turistas")
+
+#Hacemos el gráfico de llegadas de turistas internacionales en Europa
+
+ mundo_Europa <- tt %>% filter(Continente=="Europa")
+
+  grafEuropa <- ggplot(mundo_Europa, aes(x=Fecha, y=Turistas , group=Continente, color=Fecha)) + geom_line() + facet_grid(Continente ~ .) +
+  expand_limits(y=2) + theme(legend.position = "none") + labs(title = "Llegadas de turistas internacionales en Europa ",    caption = "Source:http://mkt.unwto.org/barometer",
+              x = "Fecha ",
+              y = NULL,
+              color = "Continente",
+              subtitle = "en millones de visitantes")
+
+mundo_Africa <- tt %>% filter(Continente=="Africa")
+  grafAfrica <- ggplot(mundo_Africa, aes(x=Fecha, y=Turistas , group=Continente, color=Fecha)) + geom_line() + facet_grid(Continente ~ .) +
+  expand_limits(y=2) + theme(legend.position = "none") + labs(title = "Llegadas de turistas internacionales por continente ",    caption = "Source:http://mkt.unwto.org/barometer",
+              x = "Fecha ",
+              y = NULL,
+              color = "Continente",
+              subtitle = "en millones de visitantes")
+  
+  mundo_Americas <- tt %>% filter(Continente=="Americas")
+  grafAmericas <- ggplot(mundo_Americas, aes(x=Fecha, y=Turistas , group=Continente, color=Fecha)) + geom_line() + facet_grid(Continente ~ .) +
+  expand_limits(y=2) + theme(legend.position = "none") + labs(title = "Llegadas de turistas internacionales en America del Norte, Central y Sud ",    caption = "Source:http://mkt.unwto.org/barometer",
+              x = "Fecha ",
+              y = NULL,
+              color = "Continente",
+              subtitle = "en millones de visitantes")
+  
+  mundo_Asia <- tt %>% filter(Continente=="Asia_Pacific")
+  grafAsia <- ggplot(mundo_Asia, aes(x=Fecha, y=Turistas , group=Continente, color=Fecha)) + geom_line() + facet_grid(Continente ~ .) +
+  expand_limits(y=2) + theme(legend.position = "none") + labs(title = "Llegadas de turistas internacionales en Asia Pacífica ",    caption = "Source:http://mkt.unwto.org/barometer",
+              x = "Fecha ",
+              y = NULL,
+              color = "Continente",
+              subtitle = "en millones de visitantes")
+  
+  mundo_Oriente <- tt %>% filter(Continente=="Middle_east")
+  grafOriente <- ggplot(mundo_Oriente, aes(x=Fecha, y=Turistas , group=Continente, color=Fecha)) + geom_line() + facet_grid(Continente ~ .) +
+  expand_limits(y=2) + theme(legend.position = "none") + labs(title = "Llegadas de turistas internacionales en Oriente Medio ",    caption = "Source:http://mkt.unwto.org/barometer",
+              x = "Fecha ",
+              y = NULL,
+              color = "Continente",
+              subtitle = "en millones de visitantes")
+  
+  library(patchwork)
+(grafAfrica + grafEuropa) / (grafAmericas+grafAsia+ grafOriente )
+```
+
+## Los países más visitados
+
+```{r out.width =" 100% "}
+
+url2 <- "https://raw.githubusercontent.com/Pavlinadinkova/10/main/ranking.csv"
+bb<- rio::import(url2, setclass="tibble")%>% mutate(Pais = c("FRANCIA ","ESPAÑA","EEUU","CHINA","ITALIA","TURQUIA","MÉXICO","ALEMANIA","TAILANDIA","REINO UNIDO","JAPÓN","AUSTRIA","GRECIA","HONG KONG","MALASIA","RUSIA","PORTUGAL","CANADA","POLONIA","PAISES BAJOS","MACAO","INDIA","HUNGRIA","CROACIA","EAU"),Pais = factor(Pais, levels = Pais[order(Viajeros_internacionales, decreasing = TRUE)]), Viajeros_internacionales = stringr::str_remove_all(Viajeros_internacionales, pattern = "[^[:alnum:]]"), Viajeros_internacionales = as.numeric(Viajeros_internacionales), )
+
+
+
+ pl <- ggplot(bb, aes(x=Pais , y=Viajeros_internacionales))+ geom_point(aes(color=Pais), size=3 )+geom_segment(aes(x=Pais, xend=Pais, y=0 , yend=Viajeros_internacionales, color=Pais))+geom_text(aes(label=Pais), size=3, angle=90, vjust=0, nudge_y = -5000000)+theme(legend.position="none")+ labs(y="Número de viajeros", x=NULL,title = "Paises más visitados en el mundo", subtitle = "Datos de 2019" , caption= "Fuente:OMT") +  theme(axis.text.x = element_blank(),axis.line = element_line(color = "black",size=0.5), axis.ticks.x = element_blank(), panel.background = element_rect(fill = "#d5fffd"), panel.grid.major.y = element_line("grey"), panel.grid.major.x = element_blank(), panel.grid.minor.y = element_blank()) + scale_y_continuous(expand = c(0,0),breaks = seq(0,90000000,5000000), labels = paste((seq(0,90000000,5000000)/1000000),"M"), limits = c(0,95000000))
+
+
+ggdraw(pl) + draw_image("https://upload.wikimedia.org/wikipedia/commons/b/ba/Flag_of_Germany.svg",x= 0.35, y = 0.43, width = 0.02, height = 0.02) + draw_image("https://upload.wikimedia.org/wikipedia/commons/4/41/Flag_of_Austria.svg", x=0.49, y=0.35, width=0.02, height = 0.02) + draw_image("https://upload.wikimedia.org/wikipedia/commons/c/c3/Flag_of_France.svg", x=0.10, y=0.87, width=0.018, height = 0.018) +
+  draw_image("https://upload.wikimedia.org/wikipedia/commons/8/81/Bandera_de_Espa%C3%B1a_1978.png", x=0.13, y=0.81, width=0.018, height = 0.018) +
+  draw_image("https://alphapedia.net/wp-content/uploads/2019/12/IMAGENES-DE-LA-BANDERA-DE-ESTADOS-UNIDOS-300x200.jpg", x=0.175, y=0.78, width=0.018, height = 0.018) + draw_image("https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Flag_of_the_People%27s_Republic_of_China.svg/1280px-Flag_of_the_People%27s_Republic_of_China.svg.png", x=0.21, y=0.63, width=0.018, height = 0.018)  + draw_image("https://upload.wikimedia.org/wikipedia/commons/0/03/Flag_of_Italy.svg", x=0.24, y=0.62, width=0.018, height = 0.018)   + draw_image("https://upload.wikimedia.org/wikipedia/commons/b/b4/Flag_of_Turkey.svg", x=0.27, y=0.48, width=0.018, height = 0.018)  + draw_image("https://upload.wikimedia.org/wikipedia/commons/f/fc/Flag_of_Mexico.svg", x=0.31, y=0.47, width=0.018, height = 0.018) + draw_image("https://upload.wikimedia.org/wikipedia/commons/a/a9/Flag_of_Thailand.svg", x=0.38, y=0.41, width=0.018, height = 0.018) + draw_image("https://upload.wikimedia.org/wikipedia/en/a/ae/Flag_of_the_United_Kingdom.svg", x=0.41, y=0.40, width=0.018, height = 0.018) + draw_image("https://upload.wikimedia.org/wikipedia/en/9/9e/Flag_of_Japan.svg", x=0.465, y=0.36, width=0.018, height = 0.018)  + draw_image("https://upload.wikimedia.org/wikipedia/commons/5/5c/Flag_of_Greece.svg", x=0.53, y=0.36, width=0.018, height = 0.018) + draw_image("https://upload.wikimedia.org/wikipedia/commons/5/5b/Flag_of_Hong_Kong.svg", x=0.56, y=0.36, width=0.018, height = 0.018) + draw_image("https://upload.wikimedia.org/wikipedia/commons/6/66/Flag_of_Malaysia.svg", x=0.60, y=0.32, width=0.018, height = 0.018)  + draw_image("https://upload.wikimedia.org/wikipedia/commons/f/f3/Flag_of_Russia.svg", x=0.63, y=0.30, width=0.018, height = 0.018) + draw_image("https://upload.wikimedia.org/wikipedia/commons/5/5c/Flag_of_Portugal.svg", x=0.66, y=0.29, width=0.018, height = 0.018) + draw_image("https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Flag_of_Canada_%28Pantone%29.svg/1920px-Flag_of_Canada_%28Pantone%29.svg.png", x=0.705, y=0.28, width=0.018, height = 0.018) + draw_image("https://upload.wikimedia.org/wikipedia/en/1/12/Flag_of_Poland.svg", x=0.74, y=0.27, width=0.018, height = 0.018)  + draw_image("https://www.paisesbajosytu.nl/binaries/medium/content/gallery/netherlandsandyou/content-afbeeldingen/algemeen/vlag-nederland.png", x=0.78, y=0.28, width=0.018, height = 0.018) + draw_image("https://upload.wikimedia.org/wikipedia/commons/6/63/Flag_of_Macau.svg", x=0.82, y=0.26, width=0.018, height = 0.018) + draw_image("https://upload.wikimedia.org/wikipedia/en/4/41/Flag_of_India.svg", x=0.847, y=0.24, width=0.018, height = 0.018 ) + draw_image("https://upload.wikimedia.org/wikipedia/commons/c/c1/Flag_of_Hungary.svg", x=0.89, y=0.23, width=0.018, height = 0.018) + draw_image("https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Flag_of_Croatia.svg/1920px-Flag_of_Croatia.svg.png", x=0.92, y=0.23, width=0.018, height = 0.018)  + draw_image("https://upload.wikimedia.org/wikipedia/commons/c/cb/Flag_of_the_United_Arab_Emirates.svg", x=0.96, y=0.22, width=0.018, height = 0.018  )
+```
+
+
+## Paises que más ingresan por turismo
+
+```{r, out.width =" 100% "}
+url3 <- "https://raw.githubusercontent.com/Pavlinadinkova/10/main/ingresos_paises.csv"
+rr<- rio::import(url3, setclass="tibble")
+
+  ingresos <- ggplot(rr, aes(x=reorder(Pais,Miles_millones_dolares), y=Miles_millones_dolares, fill=Pais))+
+  geom_bar(stat="identity") +
+  theme(legend.position = "none") +
+  coord_polar(start = 0) +
+  labs (x="Paises") + labs(y="Miles de millones de dólares") + labs(title = "Paises con más ingresos por el sector turístico ") + labs(subtitle = "En miles de millones de dólares")
+
+ingresos
+
+
+```
+
+
+## Monumentos mundiales más visitados 
+
+```{r eval = TRUE, echo = FALSE,out.width =" 100% "}
+knitr::include_graphics("https://raw.githubusercontent.com/xi765/TrabajoGrupo/main/graficmonworld.jpeg")
+```
+
+## Mapa Monumentos más visitados
+
+
+```{r eval = TRUE, echo = FALSE,out.width =" 100% "}
+knitr::include_graphics("https://raw.githubusercontent.com/xi765/TrabajoGrupo/main/mapmonworld.jpeg")
+```
+
+## Gasto en turismo
+
+```{r eval = TRUE, echo = FALSE,message=FALSE,out.width =" 100% "}
+#PIB en Millones
+GDP <- eurostat::get_eurostat("nama_10_gdp")
+GDP <- GDP %>% filter( na_item == "B1GQ", unit == "CP_MEUR") %>% select(geo,time,values)
+GDP <- GDP %>% rename( code = geo)
+cid <- eurostat::eu_countries
+GDP <- inner_join(GDP,cid, by = "code" )
+GDP <- GDP %>% select(-c(label)) %>% relocate(name, .before = code)
+GDP <- GDP %>% rename_at(vars(colnames(GDP)), ~ c("Country","Code","Date","PIB"))
+#GASTO TURISTICO Miles
+GT <- eurostat::get_eurostat("tour_dem_extot")
+GT <- GT %>% filter(duration == "N_GE1", purpose == "TOTAL",unit =="THS_EUR", partner == "WORLD")
+GT <- GT %>% select(geo,time,values) %>% rename( code = geo)
+cid <- eurostat::eu_countries
+GT <- inner_join(GT,cid, by = "code" )
+GT <- GT %>% select(-c(label)) %>% relocate(name, .before = code)
+GT <- GT %>% rename_at(vars(colnames(GT)), ~ c("Country","Code","Date","GT"))
+
+
+#POBLACIÓN
+POB <- eurostat::get_eurostat("demo_gind")
+POB <- POB %>% filter( indic_de == "JAN") %>% select(-c(indic_de))
+POB <- POB %>% rename(code = geo)
+cid <- eurostat::eu_countries
+POB <- inner_join(POB,cid, by = "code" )
+POB <- POB %>% select(-c(label)) %>% relocate(name, .before = code)
+POB <- POB %>% rename_at(vars(colnames(POB)), ~ c("Country","Code","Date","POB"))
+##JOIN
+data2 <- inner_join(GT,GDP, by = c("Date","Country","Code")) %>% inner_join(POB, by = c("Date","Country","Code") )
+data2 <- data2 %>% mutate( GT = (GT/1000)) #GT en Millones, igual que PIB
+data2 <- data2 %>% mutate( GTporcPIB = (GT/PIB), GTpc = (GT/POB), PIBpc = (PIB/POB))#PIBpc en Millones
+data2 <- data2 %>% separate(Date, c("Year","Month","Day"), sep = "[-]") %>% select(-c("Month","Day"))  %>% filter(Year == "2018") 
+###ANALISIS
+plot <- ggplot(data2,aes(x=PIBpc,y=GTpc)) +
+        geom_point() +
+        geom_smooth(method = "lm", formula = "y~x", show.legend = TRUE, colour = "red", alpha = 0.3) +
+        geom_text(label = data2$Country, nudge_y = 0.0002, check_overlap = TRUE) +
+        labs(fill="% PIB",
+        x="PIBpc",
+        y="Gasto en Turismo pc",
+        title="Gasto en turismo",
+        caption="Fuente: Eurostat") +
+        theme( plot.background = element_rect( fill = "#ffffff"),
+              panel.background = element_rect( fill = "#fffbdc", colour = "lavenderblush", size = 0.1 ),
+              panel.grid  = element_line( colour ="#dadada"),
+              axis.ticks = element_blank(),
+              axis.text = element_blank(),
+              plot.title = element_text(hjust = 0.5),
+              panel.border = element_rect(fill = NA,colour = "black"),
+              legend.background = element_rect( fill = "cornsilk2", colour = "black" ),
+              plot.margin = margin(t = 5, r = 25, b = 5,15) )
+plot
+
+```
+
+## Mapa de gasto turístico 
+
+
+```{r eval = TRUE, message=FALSE, echo = FALSE,out.width =" 100% "}
+
+mapdata <- map_data("world") %>% filter(region %in% c("Austria","Belgium","Bulgaria","Croatia","Cyprus",
+                   "Czech Republic","Denmark","Estonia","Finland","France",
+                   "Germany","Greece","Hungary","Ireland","Italy","Latvia",
+                   "Lithuania","Luxembourg","Malta","Netherlands","Poland",
+                   "Portugal","Romania","Slovakia","Slovenia","Spain",
+                   "Sweden","UK","Switzerland","Bosnia and Herzegovina","Serbia","Ukraine","Belarus","Albania","Montenegro","Kosovo","Macedonia","Moldova"))
+mapdata2 <- full_join(mapdata,data2 %>% mutate(Country = if_else(Country=="Czechia", true = "Czech Republic", false = Country)), by = c("region"="Country"))
+
+mapaplot <- ggplot(mapdata2, aes(x = long, y = lat, group=group, fill = GTpc) ) +
+            geom_polygon(color ="#ffffff") +
+            scale_fill_gradient(low = "#313200",high = "#f7ff00") +
+            labs(fill="Gasto en turismo pc",
+            x=NULL,
+            y=NULL,
+            title="Gasto en turismo per capita en la UE",
+            caption="Fuente: Elaboración propia, datos de Eurostat") +
+            theme( plot.background = element_rect( fill = "#ffffff"),
+              panel.background = element_rect( fill = "cornsilk2", colour = "lavenderblush", size = 0.1 ),
+              panel.grid  = element_line( colour ="grey"),
+              axis.ticks = element_blank(),
+              axis.text = element_blank(),
+              plot.title = element_text(hjust = 0.5),
+              panel.border = element_rect(fill = NA,colour = "black"),
+              legend.background = element_rect( fill = "cornsilk2", colour = "black" ),
+              plot.margin = margin(t = 5, r = 5, b = 5,10) )
+mapaplot
+```
+
+# El turismo en España {data-background="https://st3.idealista.com/news/archivos/styles/news_detail/public/2018-04/ciudades.jpg?sv=7yEx2c7g&itok=eIkB3g1c"}
+
+## Efectos positivos del turismo
+
+>- Generador de empleo
+>- Potenciar la Marca País
+>- Gran aportación al PIB
+
+
+```{r eval = TRUE, warnings = FALSE, echo = FALSE, message = FALSE,out.width =" 80% "}
+url5 <- "https://raw.githubusercontent.com/Pavlinadinkova/10/main/pibturi.csv"
+pp<- rio::import(url5, setclass="tibble")
+names(pp)= c("Componente_PIB","Vtype","Fecha","Total")
+gg <- ggplot(pp, aes(x=Fecha, y=Total, color= Fecha))  + geom_point( ) + geom_line() + scale_y_continuous(breaks = seq(10,13,0.5)) +
+      labs(title = "Aportacion del turismo en el PIB de España" , subtitle="Datos en porcentajes", x="Años", y="% PIB")
+
+gg
+```
+
+## Aportación del turismo al empleo
+
+```{r eval = TRUE, message=FALSE, error = FALSE, echo = FALSE,out.width =" 100% "}
+el_url <- "https://raw.githubusercontent.com/xi765/TrabajoGrupo/main/empleo_tur.csv"
+
+empleo <- rio::import(el_url)
+
+#Gráfico
+
+empleo1 <- empleo %>% ggplot(aes(x = Periodo, y = Total, colors(Periodo))) + geom_line() + geom_point(aes(fill = Periodo))+ labs(title = "Número de ocupados en el sector turístico",    caption = "Source:Datos INE",x = "Fecha ",y = NULL,color = "Periodo", subtitle= "Desde 2015 a 2019")
+empleo1
+
+```
+
+## Turistas por país de residencia
+
+```{r eval = TRUE, message=FALSE, error = FALSE, echo = FALSE}
+el_url <- "https://raw.githubusercontent.com/AnaMaria1198/Trabajo/main/10822bd%20(2).csv"
+datos <- rio::import(el_url)
+
+datos <- datos %>% mutate( Total = stringr::str_remove_all(Total, pattern = "([.])"))
+datos <- datos %>% mutate( Total = stringr::str_replace_all(Total , pattern = "[,]" , replacement = "." ))
+datos <- datos %>% mutate( Total = as.numeric(Total))
+
+
+#Arreglar-lo
+datos <- datos %>% mutate( VType = stringr::str_replace_all(VType , pattern = "[³]" , replacement = "" ))
+datos <- datos %>% mutate( VType = stringr::str_replace_all(VType , pattern = "[±]" , replacement = "ny" ))
+datos <- datos %>% mutate( VType = stringr::str_replace_all(VType , pattern = "[Ã]" , replacement = "o" ))
+datos <- datos %>% mutate( Country = stringr::str_replace_all(Country , pattern = "[Ã©]" , replacement = "e" ))
+datos <- datos %>% mutate( Country = stringr::str_replace_all(Country , pattern = "[³]" , replacement = "o" ))
+
+#Arreglar datos
+aa <- datos %>% filter(VType == "Dato base")
+bb <- aa %>% separate(Date, c("year","month"), sep = "[-]") %>% select(-c(month))
+
+cc <- bb %>% group_by(year, Country) %>% filter(Country!=Total) %>% mutate(SumaTotal= sum(Total)) %>% mutate(year = unique(year))
+
+#GRÁFICOS
+filtro <- cc %>% filter(Country!="Total") %>% select(-c(Total)) %>% unique() %>% group_by(year) %>% mutate (Country = factor(Country, levels = Country[order(SumaTotal)]))
+p <- filtro %>% ggplot(.,aes(x = year, y = SumaTotal ))+
+    geom_bar(aes(fill = Country), stat = "identity")+
+    labs(title = "España 2015-2020",
+    subtitle = "Número de turistas por país", source = "INE") +
+    scale_y_continuous(expand = c(0,2000000),breaks = seq(0,90000000,5000000), labels = paste((seq(0,90000000,5000000)/1000000),"M"))
+
+plotly::ggplotly(p)
+```
+
+##
+
+```{r eval = TRUE, warning=FALSE, message=FALSE, error = FALSE, echo = FALSE}
+#Gráfico de lineas
+filtro <- cc %>% filter(Country!="Total")
+cc1 <- filtro %>%
+  group_by(year) %>%
+  arrange(year, desc(SumaTotal)) %>%
+  mutate(ranking = row_number()) %>%
+  filter(ranking <=21)
+
+pl <- ggplot(cc1, aes(x=year, y=SumaTotal , group=Country, color=Country)) + geom_line() + facet_grid(Country ~ .) +
+  expand_limits(y=2) + theme(legend.position = "none") + labs(title = "Paises con mayor número de turistas ",    caption = "Source:Datos INE",
+              x = "Fecha ",
+              y = NULL,
+              color = "Continente",
+              subtitle = "En millones de visitantes")
+
+
+
+#Intente fer-ho per separa't
+#Alemania
+filtro2 <- filtro %>% filter(Country=="Alemania")
+pl1 <- ggplot(filtro2, aes(x=year, y=SumaTotal , group=Country, color=Country)) + geom_line() + facet_grid(Country ~ .) +
+  expand_limits(y=2) + theme(legend.position = "none") + labs(title = "Número de turistas de Alemania",    caption = "Source:Datos INE",
+              x = "Fecha ",
+              y = NULL,
+              color = "Continente",
+              subtitle = "En millones de visitantes")
+
+#Francia
+filtro3 <- filtro %>% filter(Country=="Francia")
+pl2 <- ggplot(filtro3, aes(x=year, y=SumaTotal , group=Country, color=Country)) + geom_line() + facet_grid(Country ~ .) +
+  expand_limits(y=2) + theme(legend.position = "none") + labs(title = "Número de turistas de Francia",    caption = "Source:Datos INE",
+              x = "Fecha ",
+              y = NULL,
+              color = "Continente",
+              subtitle = "En millones de visitantes")
+#Reino Unido
+filtro4 <- filtro %>% filter(Country=="Reino Unido")
+pl3 <- ggplot(filtro4, aes(x=year, y=SumaTotal , group=Country, color=Country)) + geom_line() + facet_grid(Country ~ .) +
+  expand_limits(y=2) + theme(legend.position = "none") + labs(title = "Número de turistas del Reino Unido ",    caption = "Source:Datos INE",
+              x = "Fecha ",
+              y = NULL,
+              color = "Continente",
+              subtitle = "En millones de visitantes")
+#Intentar Unir
+library(patchwork)
+(pl1)/(pl2)/(pl3)
+```
+
+
+## Principales motivos de las llegadas de los turistas
+
+```{r , out.height=500 , out.width=700}
+url <- "https://raw.githubusercontent.com/Pavlinadinkova/10/main/csv.csv"
+aa<- rio::import(url, setclass="tibble")
+names(aa)= c("Reason","VType", "Fecha","Total")
+data <- aa %>% mutate( Total = stringr::str_remove_all(Total, pattern = "([.])"))
+data <- data %>% mutate( Total = stringr::str_replace_all(Total , pattern = "[,]" , replacement = "." ))
+data <- data %>% mutate( Total = as.numeric(Total))
+
+cc<- data %>% filter(Reason !="Total")
+
+g <- ggplot(cc, aes( Fecha, Total))
+g + geom_bar(aes(fill=Reason),stat = "identity", width = 0.5) +
+  theme(axis.text.x = element_text(angle=65, vjust=0.6)) +
+  labs(title="Motivos de viajes",
+       subtitle="Viajes")
+p<- ggplot(data, aes(Total, Reason))
+p + geom_point() +
+  geom_smooth(method="lm", se=F) +
+  labs(subtitle="viajes motivos",
+       y="y",
+       x="x",
+       title="viajes",
+       caption="Source: ine")
+```
+
+
+## Principales Comunidades autónomas de destino
+
+```{r eval = TRUE, echo = FALSE,out.width =" 100% "}
+#DATA
+url <- "https://raw.githubusercontent.com/xi765/TrabajoGrupo/main/tur_ccaa_2019.csv"
+
+data <- rio::import(url) %>% select(-c(2)) %>% setNames(c("CCAA","año","valor")) %>% 
+                             mutate(valor = stringr::str_remove_all(valor,"[.]"), 
+                                    valor = as.numeric(valor),
+                                    CCAA = factor(CCAA, levels = CCAA[order(valor, decreasing = TRUE)]))
+
+ejey <- seq(0,20,2.5)
+# Plot
+theme_set(theme_classic())
+ggplot(data, aes(x=CCAA, y=valor)) +
+  scale_x_discrete(labels = c("Cataluña","Baleares","Canarias","Andalucía","Valencia","Madrid","Galicia","País Vasco","CyL","Murcia","Aragón","Extremadura","Navarra","Cantabria","Asturias","CyM","La Rioja"))+
+  scale_y_continuous(labels = paste0(ejey,"M"),breaks = 10^6*ejey) +
+  geom_point(size=3) +
+  geom_segment(aes(x=CCAA,
+                   xend=CCAA,
+                   y=0,
+                   yend=valor))+
+  labs(title="Comunidades autónomas más visitadas",
+       subtitle="Año: 2019",
+       caption="Fuente: INE",
+       x="Comunidad autonoma",
+       y="Visitantes anuales") +
+  theme(panel.grid.major.y = element_line(colour = "#dadada"),axis.text.x = element_text(angle=65, vjust=0.6))
+
+```
+
+## Monumentos más visitados de España
+
+```{r eval = TRUE, echo = FALSE,out.width =" 100% "}
+#Ejecutamos el gráfico de los monumentos más visitados
+url4 <- "https://raw.githubusercontent.com/Pavlinadinkova/10/main/monumentos.csv"
+mm<- rio::import(url4, setclass="tibble")  %>%  mutate(Monumento = c("Palacio Real de Madrid","Museo de Reina Sofia","Camp Nou","Reales Alcázares","Mezquita de Córdoba","Catedral de Sevilla","Alhambra de Granada","Ciudad de las Artes y Ciencias","Catedral Santiago de Compostela","Museo de Prado","Sagrada Familia"),Monumento = factor(Monumento, levels = Monumento[order(Numero_visitantes, decreasing = TRUE)]), Numero_visitantes = stringr::str_remove_all(Numero_visitantes, pattern = "[^[:alnum:]]"), Numero_visitantes = as.numeric(Numero_visitantes), )
+ml <- ggplot(mm,aes(Monumento,Numero_visitantes,color = Monumento,fill= Monumento)) +
+  geom_bar(position = "stack",  width =.18,stat="identity") +
+  coord_flip()+
+  geom_text(aes(label= Numero_visitantes ,hjust=-.03,  colour="black"),size=3.2)+
+
+  theme(axis.line = element_line(color = "orange",size=1))+
+      theme(panel.background=element_blank())+
+      scale_x_discrete() +
+    xlab(NULL)+ylab(NULL)+
+  theme(legend.position = "none",
+                     axis.text = element_text(size = 8,face="bold"),
+        plot.title = element_text(size=14,face = "bold")) +
+  ggtitle("Monumentos más visitados en España " ,subtitle = "Por número de visitantes en el año 2019")
+
+ggdraw(ml) + draw_image("https://www.aerobusbcn.com/blog/wp-content/uploads/2019/02/sagrada-familia-700x500.jpg",x= 0.87, y = 0.06, width = 0.06, height = 0.06) + draw_image("https://www.barcelo.com/guia-turismo/wp-content/uploads/2019/03/Palacio-Real-de-Madrid.jpg",x= 0.64, y = 0.81, width = 0.06, height = 0.06) + draw_image("https://upload.wikimedia.org/wikipedia/commons/d/d9/Madrid_-_Museo_Nacional_Centro_de_Arte_Reina_Sof%C3%ADa_%28MNCARS%29_03.JPG",x= 0.68, y = 0.75, width = 0.06, height = 0.06) + draw_image("https://img.fifa.com/image/upload/t_tc1/dq6tczszvf4ebburt5b8.jpg",x= 0.70, y = 0.68, width = 0.06, height = 0.06) + draw_image("https://centrohistorico.info/wp-content/uploads/2020/02/alcazar-sevilla-experienciasapie.jpg",x= 0.72, y = 0.60, width = 0.06, height = 0.06) + draw_image("https://mymodernmet.com/wp/wp-content/uploads/2020/02/Mezquita-Cordoba-1.jpg",x= 0.73, y = 0.53, width = 0.06, height = 0.06) + draw_image("https://fotos.hoteles.net/articulos/catedral-sevilla-5561-1.jpg",x= 0.74, y = 0.45, width = 0.07, height = 0.07) + draw_image("https://media.tacdn.com/media/attractions-splice-spp-674x446/06/6f/59/f9.jpg",x= 0.792, y = 0.375, width = 0.07, height = 0.07)  + draw_image("https://www.cuantochollo.com/wp-content/uploads/2018/01/ciudad-artes-ciencias-valencia-1.jpg",x= 0.83, y = 0.30, width = 0.07, height = 0.07) + draw_image("https://fotos.hoteles.net/articulos/catedral-santiago-de-compostela-2609-1.jpg",x= 0.85, y = 0.22, width = 0.06, height = 0.06) + draw_image("https://www.viajarmadrid.com/wp-content/uploads/museo-prado.jpg",x= 0.90, y = 0.13, width = 0.06, height = 0.06)
+
+```
+
+
+## Ingreso turísticos por país de residencia (BARRAS)
+
+```{r eval = TRUE, message=FALSE, echo = FALSE,out.width =" 100% "}
+url <- "https://raw.githubusercontent.com/xi765/TrabajoGrupo/main/23994bd.csv"
+data <- rio::import(url)
+data <- data %>% rename(Date = Periodo)
+data <- data %>% relocate( Date, .before = `Gastos y duración media de los viajes`)
+data <- data %>% rename( Country = `País de residencia` , VType = `Tipo de dato` , Variable = `Gastos y duración media de los viajes`)
+data <- data %>% mutate( Total = stringr::str_remove_all(Total, pattern = "([.])"))
+data <- data %>% mutate( Total = stringr::str_replace_all(Total , pattern = "[,]" , replacement = "." ))
+data <- data %>% mutate( Total = as.numeric(Total))
+
+aa <- data %>% filter(Variable == "Gasto total" , !Country %in% c("Total"),VType == "Dato base")
+aa <- aa %>% mutate(Country = replace(Country, Country %in% c("Suiza","Rusia","Irlanda","Resto América","Resto de Europa","Resto del Mundo"),"Otros"))
+aa <- aa %>% group_by(Country,Date) %>% summarise( Total = sum(Total))
+aa <- aa %>% group_by(Date) %>% mutate( TotalY = sum(Total))
+aa <- aa %>% mutate( perc. = (Total/TotalY))
+
+
+bb <- aa %>% group_by(Date) %>% mutate(Country = factor(Country, levels = Country[order(perc.)]))
+
+plot <- bb %>% ggplot(aes(x = Country, y = perc.,fill = Country)) +
+               geom_bar(stat = "identity", color = "black") +
+               facet_wrap(vars(Date),nrow = 2, ncol = 2) +
+               scale_fill_brewer(palette = "Spectral", direction = -1) +
+               scale_y_continuous(breaks = seq(0,1,0.05),labels = scales::percent) +
+               labs(fill="Países",
+               x=NULL,
+               y="% sobre el total de ingresos turísticos",
+               title="Ingresos turísticos por país",
+               caption="Fuente: INE") +
+               theme( plot.background = element_rect( fill = "#e8d7a3"),
+              panel.background = element_rect( fill = "cornsilk2", colour = "lavenderblush", size = 0.1 ),
+              panel.grid  = element_line( colour ="grey"),
+              axis.ticks = element_blank(),
+              axis.text.x = element_blank(),
+              plot.title = element_text(hjust = 0.5),
+              panel.border = element_rect(fill = NA,colour = "black"),
+              legend.background = element_rect( fill = "cornsilk2", colour = "black" ),
+              plot.margin = margin(t = 5, r = 25, b = 5,15),
+              strip.background = element_rect(fill = "#e8d7a3",colour=NULL))
+plot
+```
+
+## Ingresos turísticos por país de residencia (QUESOS)
+
+```{r eval = TRUE, message= FALSE, echo = FALSE,out.width =" 100% "}
+url <- "https://raw.githubusercontent.com/xi765/TrabajoGrupo/main/10838bd.csv"
+data <- rio::import(url)
+data <- data %>% mutate( Date = stringr::str_replace_all(Periodo , pattern = "([A-Z])" , replacement = "-") , .keep = "unused" )
+data <- data %>% relocate( Date, .before = `Gastos y duración media de los viajes`)
+data <- data %>% rename( Country = `País de residencia` , VType = `Tipo de dato` , Variable = `Gastos y duración media de los viajes`)
+data <- data %>% mutate( Total = stringr::str_remove_all(Total, pattern = "([.])"))
+data <- data %>% mutate( Total = stringr::str_replace_all(Total , pattern = "[,]" , replacement = "." ))
+data <- data %>% mutate( Total = as.numeric(Total))
+
+aa <- data %>% separate( col = Date , into = c("Year","Month") , sep = "-")
+aa <- aa %>% filter(Variable == "Gasto total" , Country != "Total" , Year %in% c(2016,2017,2018,2019),VType == "Dato base")
+aa <- aa %>% group_by(Country,Year) %>% summarise( Total = sum(Total))
+aa <- aa %>% group_by(Year) %>% mutate( TotalY = sum(Total))
+aa <- aa %>% mutate( perc. = (Total/TotalY))
+
+plot <- ggplot(aa, aes(x = "", y=perc., fill = factor(Country))) +
+  geom_bar(width = 1, stat = "identity",color = "#000000") +
+  coord_polar(theta = "y", start=0) +
+  labs(fill="País",
+       x=NULL,
+       y=NULL,
+       title="Ingresos por país y año",
+       caption="Fuente: INE") + facet_wrap(vars(Year),nrow = 2, ncol = 2) +
+      scale_y_continuous(breaks = seq(0,0.8,0.2),labels = scales::percent) +
+      scale_fill_brewer(palette = "Set1") +
+      theme( strip.background = element_blank(),
+              panel.background = element_rect( fill = "cornsilk2", colour = "black" ),
+              panel.grid  = element_line( colour ="cornsilk2"),
+              axis.ticks = element_line(colour = "cornsilk2"),
+              axis.text = element_text(size = 10, face = "bold"),
+              plot.title = element_text(hjust = 0.5),
+              plot.background = element_rect(fill = "#ffffff"),
+              panel.border = element_rect(fill = NA,color = "black"),
+              legend.background = element_rect(fill = "cornsilk2", colour = "black"),
+              strip.text = element_text(face = "bold",colour = "black"))
+plot
+```
+
+# El turismo en tiempos de COVID-19 {data-background="https://www.who.int/images/default-source/searo---images/health-topics/corona-virus19/coronavirus-blue.tmb-1200v.jpg?Culture=es&sfvrsn=1bdbbe71_6"}
+
+## Gáfico de caída del turismo
+
+```{r eval = TRUE, echo = FALSE, message=FALSE, out.width=" 100% "}
+el_url <- "https://raw.githubusercontent.com/AnaMaria1198/Trabajo/main/10822bd%20(2).csv"
+
+
+datos <- rio::import(el_url)
+datos <- datos %>% mutate( Total = stringr::str_remove_all(Total, pattern = "([.])"))
+datos <- datos %>% mutate( Total = stringr::str_replace_all(Total , pattern = "[,]" , replacement = "." ))
+datos <- datos %>% mutate( Total = as.numeric(Total))
+#Arreglar-lo
+datos <- datos %>% mutate( VType = stringr::str_replace_all(VType , pattern = "[³]" , replacement = "" ))
+datos <- datos %>% mutate( VType = stringr::str_replace_all(VType , pattern = "[±]" , replacement = "ny" ))
+datos <- datos %>% mutate( VType = stringr::str_replace_all(VType , pattern = "[Ã]" , replacement = "o" ))
+datos <- datos %>% mutate( Country = stringr::str_replace_all(Country , pattern = "[Ã©]" , replacement = "e" ))
+datos <- datos %>% mutate( Country = stringr::str_replace_all(Country , pattern = "[³]" , replacement = "o" ))
+
+#Arreglar datos
+aa <- datos %>% filter(VType == "Dato base")
+bb <- aa %>% separate(Date, c("year","month"), sep = "[-]") %>% select(-c(month))
+
+cc <- bb %>% group_by(year, Country) %>% filter(Country!=Total) %>% mutate(SumaTotal= sum(Total)) %>% mutate(year = unique(year)) %>% ungroup()
+
+#GRÁFICOS
+datos11 <- cc
+
+df<- datos11 %>% filter(Country=="Total") %>% select(c(year,SumaTotal)) %>% unique() %>% mutate(year = as.numeric(year))
+
+dd <- ggplot(df, aes(year, SumaTotal)) + geom_point() + geom_line() +
+  theme_minimal() +
+  transition_reveal(year)
+dd
+```
+
+
+## FIN {.build}
+
+```{r eval = TRUE, echo = FALSE,fig.align='center'}
+knitr::include_graphics("https://raw.githubusercontent.com/Pavlinadinkova/iosslides/main/Rplot03.jpeg"  )
+
+```
+
